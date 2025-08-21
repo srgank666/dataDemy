@@ -1,0 +1,9 @@
+{
+	"name": "databricks-course-with-datafactory-dany",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "02ba48ed-361c-414e-985b-1822202573b5",
+		"tenantId": "3bc145d1-6f46-484e-bbe9-f534ed40feaa"
+	}
+}

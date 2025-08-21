@@ -1,0 +1,199 @@
+{
+	"name": "pl_transformacion_movie_history_data",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Folder Details",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_movie_history_bronze",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_ds_file_date": {
+								"value": "@formatDateTime(pipeline().parameters.p_file_date,'yyyy-MM-dd')",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"exists"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "JsonReadSettings"
+					}
+				}
+			},
+			{
+				"name": "If Folder Exists",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Get Folder Details",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@activity('Get Folder Details').output.exists",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "email error",
+							"type": "DatabricksNotebook",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/Users/miramiravia23@gmail.com/databricks-course/movie-history/utils/02. mail-error"
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_databricks",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Transformacion results movie genre language",
+							"type": "DatabricksNotebook",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/Users/miramiravia23@gmail.com/databricks-course/movie-history/transformation/01. results_movie_genre_language",
+								"baseParameters": {
+									"p_file_date": {
+										"value": "@formatDateTime(pipeline().parameters.p_file_date,'yyyy-MM-dd')",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_databricks",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Transformacion results Country Prod Company",
+							"type": "DatabricksNotebook",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/Users/miramiravia23@gmail.com/databricks-course/movie-history/transformation/02. results_country_prod_company",
+								"baseParameters": {
+									"p_file_date": {
+										"value": "@formatDateTime(pipeline().parameters.p_file_date,'yyyy-MM-dd')",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_databricks",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Transformation Results Group Movie Genre",
+							"type": "DatabricksNotebook",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/Users/miramiravia23@gmail.com/databricks-course/movie-history/transformation/03. results_group_movie_genre",
+								"baseParameters": {
+									"p_file_date": {
+										"value": "@formatDateTime(pipeline().parameters.p_file_date,'yyyy-MM-dd')",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_databricks",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Transformation Results Group Movie Country",
+							"type": "DatabricksNotebook",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/Users/miramiravia23@gmail.com/databricks-course/movie-history/transformation/04. results_group_movie_country",
+								"baseParameters": {
+									"p_file_date": {
+										"value": "@formatDateTime(pipeline().parameters.p_file_date,'yyyy-MM-dd')",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_databricks",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"p_file_date": {
+				"type": "string",
+				"defaultValue": "2024-12-16"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-08-21T06:02:51Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

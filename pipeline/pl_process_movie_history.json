@@ -1,0 +1,75 @@
+{
+	"name": "pl_process_movie_history",
+	"properties": {
+		"activities": [
+			{
+				"name": "Execute Pipeline Ingestion",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_ingest_movie_history_data",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"p_enviroment": {
+							"value": "@pipeline().parameters.p_enviroment",
+							"type": "Expression"
+						},
+						"p_file_date": {
+							"value": "@pipeline().parameters.p_file_date",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Execute Pipeline Transformation",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Execute Pipeline Ingestion",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_transformacion_movie_history_data",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"p_file_date": {
+							"value": "@pipeline().parameters.p_file_date",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"p_enviroment": {
+				"type": "string",
+				"defaultValue": "production"
+			},
+			"p_file_date": {
+				"type": "string",
+				"defaultValue": "2024-12-16"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-08-21T06:05:58Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
